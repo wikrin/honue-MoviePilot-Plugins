@@ -192,7 +192,7 @@ class BangumiSync(_PluginBase):
     # 插件图标
     plugin_icon = "https://raw.githubusercontent.com/honue/MoviePilot-Plugins/main/icons/bangumi.jpg"
     # 插件版本
-    plugin_version = "2.0.2"
+    plugin_version = "2.0.3"
     # 插件作者
     plugin_author = "honue,happyTonakai"
     # 作者主页
@@ -208,14 +208,12 @@ class BangumiSync(_PluginBase):
 
     _enable: bool = False
     _user: str = ""
-    _uniqueid_match: bool = False
     _notify: bool = False
 
     def init_plugin(self, config: dict = None):
         if config:
             self._enable = config.get('enable', False)
             self._user = config.get('user', "")
-            self._uniqueid_match = config.get('uniqueid_match', False)
             self._notify = config.get('notify', False)
         if self._enable and (_token := config.get('token')):
             self.bangumi_client = BangumiAPIClient(token=_token, ua=BangumiSync.UA)
@@ -615,10 +613,9 @@ class BangumiSync(_PluginBase):
         for ep in episodes:
             if air_date is None:
                 air_date = ep.get("air_date")
-            if self._uniqueid_match and unique_id:
-                if ep.get("id") == unique_id:
-                    matched_episode = ep
-                    break
+            if ep.get("id") == unique_id:
+                matched_episode = ep
+                break
             elif ep.get("order", -99) + 1 == ep_num:
                 matched_episode = ep
                 break
@@ -910,22 +907,6 @@ class BangumiSync(_PluginBase):
                                     {
                                         'component': 'VSwitch',
                                         'props': {
-                                            'model': 'uniqueid_match',
-                                            'label': '集唯一ID匹配',
-                                        }
-                                    }
-                                ]
-                            },
-                            {
-                                'component': 'VCol',
-                                'props': {
-                                    'cols': 12,
-                                    'md': 4
-                                },
-                                'content': [
-                                    {
-                                        'component': 'VSwitch',
-                                        'props': {
                                             'model': 'notify',
                                             'label': '出现异常时发送通知',
                                         }
@@ -1011,7 +992,6 @@ class BangumiSync(_PluginBase):
             }
         ], {
             "enable": False,
-            "uniqueid_match": False,
             "notify": False,
             "user": "",
             "token": ""
